@@ -59,3 +59,9 @@ void RedisClient::disconnect() {
 int RedisClient::getSocketFd() const {
     return sock_fd;
 }
+
+bool RedisClient::sendCommand(const std::string &command) {
+    if(sock_fd == -1) return false;
+    ssize_t sent = send(sock_fd, command.c_str(), command.size(), 0);
+    return (sent == (ssize_t)command.size());
+}
