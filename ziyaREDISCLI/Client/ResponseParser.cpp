@@ -8,7 +8,8 @@
 
 static bool readChar(int sock_fd, char &c) {
     ssize_t r = recv(sock_fd, &c, 1, 0);
-    return (r == 1);
+    if (r <= 0) return false; // Handle errors/closure
+    return true;
 }
 
 static std::string readLine(int sock_fd) {

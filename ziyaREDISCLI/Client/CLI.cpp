@@ -27,13 +27,23 @@ void printHelp() {
 CLI::CLI(const std::string &host, int port) 
     : host(host), port(port), redisClient(host, port){}
 
-void CLI::run(const std::vector<std::string> &commandArgs) {
-    if(!redisClient.connectToServer()) {
+void CLI::sendAndPrint(const std::vector<std::string>& args) {
+    std::string command = CommandHandler::buildRESPcommand(args);
+    if (!redisClient.sendCommand(command)) {
+        std::cerr << "(Error) Failed to send command.\n";
         return;
     }
+    std::string response = ResponseParser::parseResponse(redisClient.getSocketFd());
+    std::cout << response << "\n";
+}
 
-    if(!commandArgs.empty()) {
-        executeCommand(commandArgs);
+void CLI::run(const std::vector<std::string> &commandArgs) {
+    if (!redisClient.connectToServer()) return;
+    
+    if (!commandArgs.empty()) {
+        sendAndPrint(commandArgs);
+        redisClient.disconnect();
+        return;
     }
 
 

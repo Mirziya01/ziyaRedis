@@ -11,6 +11,7 @@ class CLI {
         CLI(const std::string &host, int port);
         void run(const std::vector<std::string> &commandArgs);
         void executeCommand(const std::vector<std::string> &commandArgs);
+        void sendAndPrint(const std::vector<std::string>& args);
     private:
         std::string host;
         int port;

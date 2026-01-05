@@ -20,29 +20,26 @@ RedisClient::~RedisClient() {
 
 bool RedisClient::connectToServer() {
     struct addrinfo hints, *res = nullptr;
-    std::memset(&hints, 0, sizeof(hints)); //Clear Hints
-    hints.ai_family = AF_UNSPEC; //unspecified
-    hints.ai_socktype = SOCK_STREAM; //TCP
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
 
-    std::string portStr = std::to_string(port);//Convert to str
-    int err = getaddrinfo(host.c_str(), portStr.c_str(), &hints, &res);//Resolve Addr
-    if(err != 0){//Error Handling
+    std::string portStr = std::to_string(port);
+    int err = getaddrinfo(host.c_str(), portStr.c_str(), &hints, &res);
+    if (err != 0) {
         std::cerr << "getaddrinfo: " << gai_strerror(err) << "\n";
         return false;
     }
 
-    //Loop through address
-    for(auto p = res; p != nullptr; p = p->ai_next) {
-        sock_fd = socket(p->ai_family, p->ai_socktype, p->ai_protocol);//Make Scoket
-        if(sock_fd == -1) continue;//Skip if Connection failed
-        if(connect(sock_fd, p->ai_addr, p->ai_addrlen) == 0) break;//Break on success
-        disconnect();
-        // close(sock_fd);//Close socket if failed
-        // sock_fd = -1;
+    for (auto p = res; p != nullptr; p = p->ai_next) {
+        sock_fd = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
+        if (sock_fd == -1) continue;
+        if (connect(sock_fd, p->ai_addr, p->ai_addrlen) == 0) break;
+        disconnect(); // Only this call is needed
     }
     freeaddrinfo(res);
 
-    if(sock_fd == -1) {//Error Handling
+    if (sock_fd == -1) {
         std::cerr << "Could not connect to " << host << ":" << port << "\n";
         return false;
     }
